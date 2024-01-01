@@ -19,7 +19,7 @@ describe("Users endpoint", () => {
 
   after(async () => {
     try {
-      await db.dropDatabase();
+      await User.deleteMany();
     } catch (error) {
       console.log(error);
     }

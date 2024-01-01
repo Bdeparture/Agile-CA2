@@ -9,7 +9,6 @@ import movies from './movies.js';
 dotenv.config();
 
 // deletes all user documents in collection and inserts test data
-// deletes all user documents in collection and inserts test data
 async function loadUsers() {
   console.log('load user Data');
   try {

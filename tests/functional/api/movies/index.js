@@ -19,7 +19,7 @@ describe("Movies endpoint", () => {
 
   after(async () => {
     try {
-      await db.dropDatabase();
+      await Movie.deleteMany();
     } catch (error) {
       console.log(error);
     }
