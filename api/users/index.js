@@ -5,31 +5,6 @@ import jwt from 'jsonwebtoken';
 
 const router = express.Router(); // eslint-disable-line
 
-async function registerUser(req, res) {
-    const user = await User.findOne({ username: req.body.username });
-    if (!user) {
-        await User.create(req.body);
-        res.status(201).json({success: true, msg: 'User successfully created.'});
-    } else {
-        res.status(401).json({success: false, msg: 'User existed!'});
-    }
-}
-
-async function authenticateUser(req, res) {
-  const user = await User.findByUserName(req.body.username);
-  if (!user) {
-      return res.status(401).json({ success: false, msg: 'Authentication failed. User not found.' });
-  }
-
-  const isMatch = await user.comparePassword(req.body.password);
-  if (isMatch) {
-      const token = jwt.sign({ username: user.username }, process.env.SECRET);
-      res.status(200).json({ success: true, token: 'BEARER ' + token });
-  } else {
-      res.status(401).json({ success: false, msg: 'Wrong password.' });
-  }
-}
-
 // Get all users
 /**,
  * @swagger
@@ -65,22 +40,30 @@ router.get("/", async (req, res) => {
  *        200:
  *          description: "successful operation"
  * */
-router.post('/', asyncHandler(async (req, res) => {
-    try {
-        if (!req.body.username || !req.body.password) {
-            return res.status(400).json({ success: false, msg: 'Username and password are required.' });
-        }
-        if (req.query.action === 'register') {
-            await registerUser(req, res);
+router.post('/',asyncHandler( async (req, res, next) => {
+  if (!req.body.username || !req.body.password) {
+    res.status(401).json({success: false, msg: 'Please pass username and password.'});
+    return next();
+  }
+  if (req.query.action === 'register') {
+    await User.create(req.body);
+    res.status(201).json({code: 201, msg: 'Successful created new user.'});
+  } else {
+    const user = await User.findByUserName(req.body.username);
+      if (!user) return res.status(401).json({ code: 401, msg: 'Authentication failed. User not found.' });
+      user.comparePassword(req.body.password, (err, isMatch) => {
+        if (isMatch && !err) {
+          // if user is found and password matches, create a token
+          const token = jwt.sign(user.username, process.env.SECRET);
+          // return the information including token as JSON
+          res.status(200).json({success: true, token: 'BEARER ' + token});
         } else {
-            await authenticateUser(req, res);
+          res.status(401).json({code: 401,msg: 'Authentication failed. Wrong password.'});
         }
-    } catch (error) {
-        // Log the error and return a generic error message
-        console.error(error);
-        res.status(500).json({ success: false, msg: 'Internal server error.' });
+      });
     }
-  }));
+}));
+
 
 // Update a user
 /**,
