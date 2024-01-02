@@ -3,7 +3,7 @@ import movieModel from './movieModel';
 import uniqid from "uniqid";
 import asyncHandler from 'express-async-handler';
 import {
-    getMovie, getPopularMovies,  getUpcomingMovies, getMovieCredits, getMovieImages, getMovieReviews, getTopRatedMovies,getGenres,
+    getMovie, getPopularMovies, getUpcomingMovies, getMovieCredits, getMovieImages, getMovieReviews, getTopRatedMovies, getGenres,
 } from '../tmdb-api';
 
 const router = express.Router();
@@ -119,9 +119,14 @@ router.post("/:id/reviews", (req, res) => {
  * 
  */
 router.get('/tmdb/popular/:page', asyncHandler(async (req, res) => {
-    const page = parseInt(req.params.page);
-    const popularMovies = await getPopularMovies(page);
-    res.status(200).json(popularMovies);
+    if (Regex.test(req.params.page)) {
+        const page = parseInt(req.params.page);
+        const popularMovies = await getPopularMovies(page);
+        res.status(200).json(popularMovies);
+    }
+    else {
+        res.status(404).json({ message: 'Invalid page form.', status_code: 404 })
+    }
 }));
 
 /**
@@ -151,9 +156,18 @@ router.get('/tmdb/popular/:page', asyncHandler(async (req, res) => {
  * 
  */
 router.get('/tmdb/upcoming/:page', asyncHandler(async (req, res) => {
-    const page = parseInt(req.params.page);
-    const upcomingMovies = await getUpcomingMovies(page);
-    res.status(200).json(upcomingMovies);
+    if (Regex.test(req.params.page)) {
+        const page = parseInt(req.params.page);
+        try {
+            const upcomingMovies = await getUpcomingMovies(page);
+            res.status(200).json(upcomingMovies);
+        } catch (error) {
+            console.error('Error in getUpcomingMovies:', error);
+            res.status(500).json({ message: 'Internal Server Error', status_code: 500, error: error.message });
+        }
+    } else {
+        res.status(404).json({ message: 'Invalid page form.', status_code: 404 });
+    }
 }));
 
 /**
@@ -183,9 +197,14 @@ router.get('/tmdb/upcoming/:page', asyncHandler(async (req, res) => {
  * 
  */
 router.get('/tmdb/topRated/:page', asyncHandler(async (req, res) => {
+    if (Regex.test(req.params.page)) {
     const page = parseInt(req.params.page);
     const topRatedMovies = await getTopRatedMovies(page);
     res.status(200).json(topRatedMovies);
+}
+    else {
+        res.status(404).json({ message: 'Invalid page form.', status_code: 404 })
+    }
 }));
 
 /**,
@@ -241,7 +260,7 @@ router.get('/tmdb/:id', asyncHandler(async (req, res) => {
     if (movie) {
         res.status(200).json(movie);
     } else {
-        res.status(404).json({message: 'The resource you requested could not be found.', status_code: 404});
+        res.status(404).json({ message: 'The resource you requested could not be found.', status_code: 404 });
     }
 }));
 
@@ -310,25 +329,5 @@ router.get('/tmdb/:id/images', asyncHandler(async (req, res) => {
     }
 }));
 
-/**,
- * @swagger
- * /api/movies/tmdb/:id/movieReviews:
- *    get:
- *      tags:
- *       - movie
- *      summary: movieReviews
- *      operationId: movieReviews 
- *      produces:
- *      - application/json
- *      responses:
- *        200:
- *          description: "successful operation"
- * */
-
-router.get('/tmdb/:id/movieReviews', asyncHandler(async (req, res) => {
-    const id = parseInt(req.params.id);
-    const movieReviews = await getMovieReviews(id);
-    res.status(200).json(movieReviews);
-}));
 
 export default router;

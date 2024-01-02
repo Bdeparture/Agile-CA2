@@ -16,52 +16,38 @@ export const getMovie = async (id) => {
     }
   };
 
-export const getPopularMovies = async (page) => {
-    try {
-        const response = await fetch(
-            `https://api.themoviedb.org/3/movie/popular?api_key=${process.env.REACT_APP_TMDB_KEY}&language=en-US&page=${page}`
-        );
-
-        if (!response.ok) {
-            throw new Error(response.json().message);
-        }
-
-        return await response.json();
-    } catch (error) {
-        throw error;
-    }
+  export const getPopularMovies = (page) => {
+    return fetch(
+        `https://api.themoviedb.org/3/movie/popular?api_key=${process.env.REACT_APP_TMDB_KEY}&language=en-US${page}`
+    ).then((response) => {
+        return response.json();
+    })
+        .catch((error) => {
+            throw error
+        });
 };
 
-export const getUpcomingMovies = async (page) => {
-    try {
-        const response = await fetch(
-            `https://api.themoviedb.org/3/movie/upcoming?api_key=${process.env.REACT_APP_TMDB_KEY}&language=en-US&page=${page}`
-        );
 
-        if (!response.ok) {
-            throw new Error(response.json().message);
-        }
-
-        return await response.json();
-    } catch (error) {
+export const getUpcomingMovies = (page) => {
+    return fetch(
+        `https://api.themoviedb.org/3/movie/upcoming?api_key=${process.env.REACT_APP_TMDB_KEY}&language=en-US&page=${page}`
+    ).then(async (response) => {
+        return response.json();
+    })
+    .catch((error) => {
         throw error;
-    }
+    });
 };
 
-export const getTopRatedMovies = async(page) => {
-    try {
-        const response = await fetch(
-            `https://api.themoviedb.org/3/movie/top_rated?api_key=${process.env.REACT_APP_TMDB_KEY}&language=en-US&page=${page}`
-        );
-
-        if (!response.ok) {
-            throw new Error(response.json().message);
-        }
-
-        return await response.json();
-    } catch (error) {
-        throw error;
-    }
+export const getTopRatedMovies = (page) => {
+    return fetch(
+        `https://api.themoviedb.org/3/movie/top_rated?api_key=${process.env.REACT_APP_TMDB_KEY}&language=en-US${page}`
+    ).then((response) => {
+        return response.json();
+    })
+        .catch((error) => {
+            throw error
+        });
   }
 
 export const getGenres = async () => {

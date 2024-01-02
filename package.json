@@ -23,7 +23,7 @@
     "start": "nodemon --exec babel-node index.js",
     "start:prod": "cross-env SEED_DB=true MONGO_DB=mongodb://127.0.0.1:27017/test NODE_ENV=test node build/index.js",
     "postinstall": "rimraf ./build && npm run compile:all",
-    "test": "cross-env NODE_ENV=test SEED_DB=true mocha"
+    "test": "cross-env NODE_ENV=test SEED_DB=false mocha"
   },
   "author": "Diarmuid O Connor",
   "license": "ISC",
@@ -48,6 +48,7 @@
     "@babel/runtime": "^7.6.3",
     "bcrypt": "^5.1.1",
     "bcrypt-nodejs": "^0.0.3",
+    "chai-http": "^4.4.0",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "express-async-handler": "^1.2.0",

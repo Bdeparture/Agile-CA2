@@ -1,4 +1,5 @@
 import chai from "chai";
+const chaiHttp = require('chai-http');
 import request from "supertest";
 const mongoose = require("mongoose");
 import Movie from "../../../../api/movies/movieModel";
@@ -74,6 +75,116 @@ describe("Movies endpoint", () => {
           .expect({
             status_code: 404,
             message: "The resource you requested could not be found.",
+          });
+      });
+    });
+  });
+
+  chai.use(chaiHttp);
+  describe('GET /api/movies/tmdb/popular/:page', () => {
+    describe("when the page is valid number", () => {
+      it('should return popular movies for a given page', (done) => {
+        const page = 1;
+        chai.request(api)
+        .get(`/api/movies/tmdb/popular/${page}`)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect("Content-Type", /json/)
+          expect(res.body).to.be.an('object');
+          expect(res.body).to.have.property('results').that.is.an('array');
+          res.body.results.forEach((movie) => {
+            expect(movie).to.have.property('id');
+            expect(movie).to.have.property('title');
+            expect(movie).to.have.property('overview');
+            expect(movie).to.have.property('popularity').that.is.a('number');
+          });
+          done();
+        });
+      });
+    });
+    describe("when the page is invalid number", () => {
+      it("should return a status 404 and the corresponding message", (done) => {
+        const page = 0;
+        chai.request(api)
+          .get(`/api/movies/tmdb/popular/${page}`)
+          .end((err, res) => {
+            expect(res).to.have.status(404);
+            expect("Content-Type", /json/)
+            expect(res.body).to.deep.equal({ message: 'Invalid page form.', status_code: 404 });
+            done();
+          });
+      });
+    });
+  });
+
+
+  describe('GET /api/movies/tmdb/upcoming/:page', () => {
+    describe("when the page is valid number", () => {
+      it('should return upcoming movies for a given page', (done) => {
+        const page = 1;
+        chai.request(api)
+          .get(`/api/movies/tmdb/upcoming/${page}`)
+          .end((err, res) => {
+            expect(res).to.have.status(200);
+            expect("Content-Type", /json/)
+            expect(res.body).to.be.an('object');
+            expect(res.body).to.have.property('results').that.is.an('array');
+            res.body.results.forEach((movie) => {
+              expect(movie).to.have.property('id');
+              expect(movie).to.have.property('title');
+              expect(movie).to.have.property('overview');
+              expect(movie).to.have.property('popularity').that.is.a('number');
+            });
+            done();
+          });
+      });
+    }),
+      describe("when the page is invalid number", () => {
+        it("should return a status 404 and the corresponding message", (done) => {
+          const page = 0;
+          chai.request(api)
+            .get(`/api/movies/tmdb/upcoming/${page}`)
+            .end((err, res) => {
+              expect(res).to.have.status(404);
+              expect("Content-Type", /json/)
+              expect(res.body).to.deep.equal({ message: 'Invalid page form.', status_code: 404 });
+              done();
+            });
+        });
+      });
+  });
+
+  describe('GET /api/movies/tmdb/topRated/:page', () => {
+    describe("when the page is valid number", () => {
+      it('should return topRated movies for a given page', (done) => {
+        const page = 1;
+        chai.request(api)
+          .get(`/api/movies/tmdb/topRated/${page}`)
+          .end((err, res) => {
+            expect(res).to.have.status(200);
+            expect("Content-Type", /json/)
+            expect(res.body).to.be.an('object');
+            expect(res.body).to.have.property('results').that.is.an('array');
+            res.body.results.forEach((movie) => {
+              expect(movie).to.have.property('id');
+              expect(movie).to.have.property('title');
+              expect(movie).to.have.property('overview');
+              expect(movie).to.have.property('popularity').that.is.a('number');
+            });
+            done();
+          });
+      });
+    });
+    describe("when the page is invalid number", () => {
+      it("should return a status 404 and the corresponding message", (done) => {
+        const page = 0;
+        chai.request(api)
+          .get(`/api/movies/tmdb/topRated/${page}`)
+          .end((err, res) => {
+            expect(res).to.have.status(404);
+            expect("Content-Type", /json/)
+            expect(res.body).to.deep.equal({ message: 'Invalid page form.', status_code: 404 });
+            done();
           });
       });
     });
