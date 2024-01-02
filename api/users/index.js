@@ -2,6 +2,9 @@ import express from 'express';
 import User from './userModel';
 import asyncHandler from 'express-async-handler';
 import jwt from 'jsonwebtoken';
+const mongoose = require("mongoose");
+import movieModel from '../movies/movieModel';
+import {getMovie} from '../tmdb-api';
 
 const router = express.Router(); // eslint-disable-line
 
@@ -68,7 +71,7 @@ router.post('/',asyncHandler( async (req, res, next) => {
 // Update a user
 /**,
  * @swagger
- * /api/update/:id:
+ * /api/users/update/:id:
  *    put:
  *      tags:
  *       - users
@@ -81,13 +84,17 @@ router.post('/',asyncHandler( async (req, res, next) => {
  *          description: "successful operation"
  * */
 router.put("/update/:id", async (req, res) => {
+  const userId = req.params.id;
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(404).json({ code: 404, msg: "User not found" });
+  }
   if (req.body._id) delete req.body._id;
   const user = await User.findById(req.params.id);
   if (user) {
     user.username = req.body.username;
     user.password = req.body.password;
     await user.save();
-    res.status(200).json({ code: 200, msg: "User Updated Sucessfully" });
+    res.status(200).json({ code: 200, msg: "User Updated Successfully" });
   } else {
     res.status(404).json({ code: 404, msg: "User not found" });
   }
@@ -96,7 +103,7 @@ router.put("/update/:id", async (req, res) => {
 // Delete a user
    /**,
  * @swagger
- * /api/delete/:id:
+ * /api/users/delete/:id:
  *    delete:
  *      tags:
  *       - users
@@ -110,6 +117,9 @@ router.put("/update/:id", async (req, res) => {
  * */
 router.delete("/delete/:id", async (req, res) => {
   const id = req.params.id;
+  if (!mongoose.Types.ObjectId.isValid(userid)) {
+    return res.status(404).json({ code: 404, msg: "User not found" });
+  }
   User.findByIdAndDelete(id, (err, user) => {
     if (err) {
       res.status(500).send(err);
@@ -135,19 +145,19 @@ router.delete("/delete/:id", async (req, res) => {
  *          description: Add a favourite
  * */
 router.post('/:userName/favourites', asyncHandler(async (req, res) => {
-    const movieId = req.body.movieId;
-    const userName = req.params.userName;
-    try {
-        await User.findOneAndUpdate(
-            {username: userName}, 
-            {$addToSet: {favouriteMovies: movieId}}, 
-            {new: true}
-        );
-        res.status(200).json({message: 'Favourite movie added successfully'});
-    } catch (error) {
-        res.status(500).json({message: 'Error adding favourite movie'});
-    }
-  }));
+  const movieId = req.body.movieId;
+  const userName = req.params.userName;
+  try {
+      await User.findOneAndUpdate(
+          {username: userName}, 
+          {$addToSet: {favouriteMovies: movieId}}, 
+          {new: true}
+      );
+      res.status(200).json({message: 'Favourite movie added successfully'});
+  } catch (error) {
+      res.status(500).json({message: 'Error adding favourite movie'});
+  }
+}));
 
 /**,
  * @swagger
@@ -163,11 +173,11 @@ router.post('/:userName/favourites', asyncHandler(async (req, res) => {
  *        200:
  *          description: get favourite movieId
  * */
-  router.get('/:userName/favourites', asyncHandler( async (req, res) => {
-    const userName = req.params.userName;
-    const user = await User.findByUserName(userName);
-    res.status(200).json(user.favourites);
-  }));
+router.get('/:userName/favourites', asyncHandler(async (req, res) => {
+  const userName = req.params.userName;
+  const user = await User.findByUserName(userName).populate('favourites');
+  res.status(200).json(user.favourites);
+}));
 
    /**,
  * @swagger

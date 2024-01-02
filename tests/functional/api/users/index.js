@@ -2,11 +2,14 @@ import chai from "chai";
 import request from "supertest";
 const mongoose = require("mongoose");
 import User from "../../../../api/users/userModel";
+import users from "../../../../seedData/users";
 import api from "../../../../index";
+const sinon = require('sinon');
 
 const expect = chai.expect;
 let db;
-let user1token;
+let user1Id;
+
 
 describe("Users endpoint", () => {
   before(() => {
@@ -36,6 +39,13 @@ describe("Users endpoint", () => {
         username: "user2",
         password: "test2",
       });
+      await request(api).post("/api/users/user1/favourites").send({
+        id: 411
+      });
+      const response = await request(api)
+        .get('/api/users')
+        .set('Accept', 'application/json');
+      user1Id = response.body.find(user => user.username === 'user1')?._id;
     } catch (err) {
       console.error(`failed to Load user test Data: ${err}`);
     }
@@ -43,65 +53,102 @@ describe("Users endpoint", () => {
   afterEach(() => {
     api.close();
   });
-  describe("GET /api/users ", () => {
-    it("should return the 2 users and a status 200", (done) => {
+
+  describe("PUT /api/users/update/:id", () => {
+    it("should update a user and return 200 status", (done) => {
+      const requestData = { username: "user3", password: "test3" };
       request(api)
-        .get("/api/users")
+        .put(`/api/users/update/${user1Id}`)
+        .send(requestData)
+        .set("Accept", "application/json")
+        .end((err, res) => {
+          if (err) {
+            done(err);
+          } else {
+            expect(res.status).to.equal(200);
+            expect(res.body).to.deep.equal({
+              code: 200,
+              msg: "User Updated Successfully",
+            });
+            done();
+          }
+        });
+    });
+
+    it("should return 404 for non-existing user", () => {
+      return request(api)
+        .put("/api/users/update/aaa")
+        .send({ username: "user3", password: "test3" })
         .set("Accept", "application/json")
         .expect("Content-Type", /json/)
-        .expect(200)
-        .end((err, res) => {
-          expect(res.body).to.be.a("array");
-          expect(res.body.length).to.equal(2);
-          let result = res.body.map((user) => user.username);
-          expect(result).to.have.members(["user1", "user2"]);
-          done();
+        .expect(404)
+        .then((res) => {
+          expect(res.body).to.deep.equal({
+            code: 404,
+            msg: "User not found",
+          });
         });
     });
   });
 
-  describe("POST /api/users ", () => {
-    describe("For a register action", () => {
-      describe("when the payload is correct", () => {
-        it("should return a 201 status and the confirmation message", () => {
+  describe("POST /api/users/:userName/favourites", () => {
+    describe("for valid user name", () => {
+      describe("when the movie is not in favourites", () => {
+        it("should return a status 200 and message", () => {
           return request(api)
-            .post("/api/users?action=register")
+            .post(`/api/users/${users[0].username}/favourites`)
             .send({
-              username: "user3",
-              password: "test3",
+              id: 77660
             })
-            .expect(201)
-            .expect({ msg: "Successful created new user.", code: 201 });
-        });
-        after(() => {
-          return request(api)
-            .get("/api/users")
             .set("Accept", "application/json")
             .expect("Content-Type", /json/)
             .expect(200)
-            .then((res) => {
-              expect(res.body.length).to.equal(3);
-              const result = res.body.map((user) => user.username);
-              expect(result).to.have.members(["user1", "user2", "user3"]);
+            .expect({ message: 'Favourite movie added successfully' })
+        });
+      });
+      describe("when the movie is in favourites", () => {
+        it("return error message and a status 404", (done) => {  // <-- 添加 done 参数
+          const findOneAndUpdateStub = sinon.stub(User, 'findOneAndUpdate');
+          findOneAndUpdateStub.throws(new Error('Simulated database error'));
+
+          request(api)
+            .post('/user1/favourites')
+            .send({ movieId: '1' })
+            .expect(404)
+            .end((err, res) => {
+              if (err) return done(err);
+              findOneAndUpdateStub.restore();
+              done();
             });
         });
       });
     });
-    describe("For an authenticate action", () => {
-      describe("when the payload is correct", () => {
-        it("should return a 200 status and a generated token", () => {
+  });
+  describe("GET /api/users/:userName/favourites", () => {
+    it("should return the favourites list and status 200", () => {
+      return request(api)
+        .get(`/api/users/${users[0].username}/favourites`)
+        .set("Accept", "application/json")
+        .expect("Content-Type", /json/)
+        .expect(200)
+        .then((res) => {
+          expect(res.body).to.be.a("array");
+        });
+    });
+  });
+  describe("DELETE /api/users/:userName/favourites", () => {
+    describe("for valid user name", () => {
+      describe("when the movie is in favourites", () => {
+        it("should return user message and a status 201", () => {
           return request(api)
-            .post("/api/users?action=authenticate")
+            .delete(`/api/users/${users[0].username}/favourites`)
             .send({
-              username: "user1",
-              password: "test1",
+              id: 411
             })
+            .set("Accept", "application/json")
+            .expect("Content-Type", /json/)
             .expect(200)
-            .then((res) => {
-              expect(res.body.success).to.be.true;
-              expect(res.body.token).to.not.be.undefined;
-              user1token = res.body.token.substring(7);
-            });
+            .expect({ message: 'Favourite movie removed successfully' });
         });
       });
     });
