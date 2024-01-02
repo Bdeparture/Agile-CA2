@@ -39,8 +39,7 @@ Build_api:
 
 test_api:
   stage: test
-  script:
-    - npm run reset-test-database
+  script: 
     - npm run test
 
 deploy_staging:
