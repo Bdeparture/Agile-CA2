@@ -71,7 +71,7 @@ describe("Users endpoint", () => {
               password: "test3",
             })
             .expect(201)
-            .expect({ msg: "User successfully created.", success: true });
+            .expect({ msg: "Successful created new user.", code: 201 });
         });
         after(() => {
           return request(api)
