@@ -4,6 +4,7 @@ import peopleModel from "./peopleModel";
 import { getPeople, getPerson, getPeopleImages, getPeopleMovieCredits } from '../tmdb-api';
 
 const router = express.Router();
+let Regex = /^[1-9][0-9]*$/;
 
 /**,
  * @swagger
@@ -53,10 +54,15 @@ router.get('/', asyncHandler(async (req, res) => {
  *        200:
  *          description: "successful operation"
  * */
-router.get('/tmdb/people/:page', asyncHandler(async (req, res) => {
-  const page = parseInt(req.params.page);
-  const people = await getPeople(page);
-  res.status(200).json(people);
+router.get('/tmdb/peopleList/:page', asyncHandler(async (req, res) => {
+  if (Regex.test(req.params.page)) {
+    const page = parseInt(req.params.page);
+    const people = await getPeople(page);
+    res.status(200).json(people);
+  }
+  else {
+    res.status(404).json({ message: 'Invalid page form.', status_code: 404 })
+  }
 }));
 
 /**,
@@ -74,9 +80,9 @@ router.get('/tmdb/people/:page', asyncHandler(async (req, res) => {
  *          description: "successful operation"
  * */
 router.get('/tmdb/:id', asyncHandler(async (req, res) => {
-  const id = parseInt(req.params.id);
-  const person= await getPerson(id);
-  res.status(200).json(person);
+    const id = parseInt(req.params.id);
+    const person = await getPerson(id);
+    res.status(200).json(person);
 }));
 
 /**,
@@ -94,9 +100,12 @@ router.get('/tmdb/:id', asyncHandler(async (req, res) => {
  *          description: "successful operation"
  * */
 router.get('/tmdb/:id/peopleMovieCredits', asyncHandler(async (req, res) => {
+  if (Regex.test(req.params.id)) {
   const id = parseInt(req.params.id);
   const peopleMovieCredits = await getPeopleMovieCredits(id);
-  res.status(200).json(peopleMovieCredits);
+  res.status(200).json(peopleMovieCredits);  } else {
+    res.status(404).json({ message: 'Invalid person id.', status_code: 404 })
+  }
 }));
 
 /**,
@@ -114,9 +123,13 @@ router.get('/tmdb/:id/peopleMovieCredits', asyncHandler(async (req, res) => {
  *          description: "successful operation"
  * */
 router.get('/tmdb/:id/peopleImages', asyncHandler(async (req, res) => {
-  const id = parseInt(req.params.id);
-  const peopleImages = await getPeopleImages(id);
-  res.status(200).json(peopleImages);
+  if (Regex.test(req.params.id)) {
+    const id = parseInt(req.params.id);
+    const peopleImages = await getPeopleImages(id);
+    res.status(200).json(peopleImages);
+  } else {
+    res.status(404).json({ message: 'Invalid person id.', status_code: 404 })
+  }
 }));
 
 export default router;
