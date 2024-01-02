@@ -3,9 +3,6 @@ import User from './userModel';
 import asyncHandler from 'express-async-handler';
 import jwt from 'jsonwebtoken';
 const mongoose = require("mongoose");
-import movieModel from '../movies/movieModel';
-import {getMovie} from '../tmdb-api';
-
 const router = express.Router(); // eslint-disable-line
 
 // Get all users
@@ -98,35 +95,6 @@ router.put("/update/:id", async (req, res) => {
   } else {
     res.status(404).json({ code: 404, msg: "User not found" });
   }
-});
-
-// Delete a user
-   /**,
- * @swagger
- * /api/users/delete/:id:
- *    delete:
- *      tags:
- *       - users
- *      summary: 
- *      operationId: 
- *      produces:
- *      - application/json
- *      responses:
- *        200:
- *          description: delete userId
- * */
-router.delete("/delete/:id", async (req, res) => {
-  const id = req.params.id;
-  if (!mongoose.Types.ObjectId.isValid(userid)) {
-    return res.status(404).json({ code: 404, msg: "User not found" });
-  }
-  User.findByIdAndDelete(id, (err, user) => {
-    if (err) {
-      res.status(500).send(err);
-    } else {
-      res.status(200).send(user);
-    }
-  });
 });
 
 //Add a favourite

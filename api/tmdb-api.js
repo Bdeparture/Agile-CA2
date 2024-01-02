@@ -104,10 +104,6 @@ export const getMovieReviews = async (id) => {
             `https://api.themoviedb.org/3/movie/${id}/reviews?api_key=${process.env.REACT_APP_TMDB_KEY}`
         );
 
-        if (!response.ok) {
-            throw new Error(response.json().message);
-        }
-
         return await response.json();
     } catch (error) {
         throw error;

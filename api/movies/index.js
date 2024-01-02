@@ -42,24 +42,18 @@ router.get('/', asyncHandler(async (req, res) => {
  *        200:
  *          description: "successful operation"
  * */
-router.get('/:id/reviews', (req, res) => {
-    const id = parseInt(req.params.id);
-    if (!Regex.test(id)) {
-        res.status(404).json({ message: 'The resource you requested could not be found.', status_code: 404 });
+router.get('/:id/reviews', asyncHandler(async (req, res) => {
+    if (Regex.test(req.params.id)) {
+        const id = parseInt(req.params.id);
+        const movieReviews = await getMovieReviews(id);
+        res.status(200).json(movieReviews);
     }
     else {
-        // find reviews in list
-        if (movieReviews.id == id) {
-            res.status(200).json(movieReviews);
-        }
-        else {
-            res.status(404).json({
-                message: 'The resource you requested could not be found.',
-                status_code: 404
-            });
-        }
+        res.status(404).json({ message: 'The resource you requested could not be found.', status_code: 404 })
     }
-});
+}));
+
+
 
 //Post a movie review
 /**,
@@ -76,9 +70,10 @@ router.get('/:id/reviews', (req, res) => {
  *        200:
  *          description: "successful operation"
  * */
-router.post("/:id/reviews", (req, res) => {
+router.post("/:id/reviews", asyncHandler(async (req, res) => {
     const id = parseInt(req.params.id);
-
+    const movieReviews = await getMovieReviews(id);
+    
     if (movieReviews.id == id) {
         req.body.created_at = new Date();
         req.body.updated_at = new Date();
@@ -91,7 +86,7 @@ router.post("/:id/reviews", (req, res) => {
             status_code: 404,
         });
     }
-});
+}));
 /**
  * @swagger
  * /api/movies/tmdb/popular/page{page}:
@@ -198,10 +193,10 @@ router.get('/tmdb/upcoming/:page', asyncHandler(async (req, res) => {
  */
 router.get('/tmdb/topRated/:page', asyncHandler(async (req, res) => {
     if (Regex.test(req.params.page)) {
-    const page = parseInt(req.params.page);
-    const topRatedMovies = await getTopRatedMovies(page);
-    res.status(200).json(topRatedMovies);
-}
+        const page = parseInt(req.params.page);
+        const topRatedMovies = await getTopRatedMovies(page);
+        res.status(200).json(topRatedMovies);
+    }
     else {
         res.status(404).json({ message: 'Invalid page form.', status_code: 404 })
     }
