@@ -1,49 +1,37 @@
-import mongoose from 'mongoose';
-import bcrypt from 'bcrypt-nodejs';
+import mongoose from "mongoose";
+import bcrypt from 'bcrypt';
 
 const Schema = mongoose.Schema;
 
-var validatePassword = function(password) {
-  const re = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{5,}$/;
-  return re.test(password)
-};
 const UserSchema = new Schema({
-  username: { type: String, unique: true, required: true},
-  password: {type: String, required: true , validate: [validatePassword] },
-  favourites: [{type: mongoose.Schema.Types.ObjectId, ref: 'Movies'}]
+  username: { type: String, unique: true, required: true },
+  password: { type: String, required: true },
+  favourites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Movies" }]
 });
 
-UserSchema.pre('save', function(next) {
-  const user = this;
-  if (this.isModified('password') || this.isNew) {
-      bcrypt.genSalt(10, (err, salt)=> {
-          if (err) {
-              return next(err);
-          }
-          bcrypt.hash(user.password, salt, null, (err, hash)=> {
-              if (err) {
-                  return next(err);
-              }
-              user.password = hash;
-              next();
-          });
-      });
-  } else {
-      return next();
-  }
-});
-
+UserSchema.pre('save', async function(next) {
+    const saltRounds = 10; // You can adjust the number of salt rounds
+    //const user = this;
+    if (this.isModified('password') || this.isNew) {
+      try {
+        const hash = await bcrypt.hash(this.password, saltRounds);
+        this.password = hash;
+        next();
+    } catch (error) {
+       next(error);
+    }
+  
+    } else {
+        next();
+    }
+  });
+  
 UserSchema.statics.findByUserName = function (username) {
   return this.findOne({ username: username });
 };
 
-UserSchema.methods.comparePassword = function (passw, callback) {
-  bcrypt.compare(passw, this.password, (err, isMatch) => {
-    if (err) {
-      return callback(err);
-    }
-    callback(null, isMatch);
-  });
-};
+UserSchema.methods.comparePassword = async function (passw) { 
+    return await bcrypt.compare(passw, this.password); 
+  }
 
 export default mongoose.model('User', UserSchema);

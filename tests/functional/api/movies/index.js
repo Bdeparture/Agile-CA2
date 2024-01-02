@@ -55,7 +55,7 @@ describe("Movies endpoint", () => {
     describe("when the id is valid", () => {
       it("should return the matching movie", () => {
         return request(api)
-          .get(`/api/movies/${movies[0].id}`)
+          .get(`/api/movies/tmdb/${movies[0].id}`)
           .set("Accept", "application/json")
           .expect("Content-Type", /json/)
           .expect(200)
@@ -67,7 +67,7 @@ describe("Movies endpoint", () => {
     describe("when the id is invalid", () => {
       it("should return the NOT found message", () => {
         return request(api)
-          .get("/api/movies/9999")
+          .get("/api/movies/tmdb/00000")
           .set("Accept", "application/json")
           .expect("Content-Type", /json/)
           .expect(404)
