@@ -40,7 +40,7 @@ Build_api:
 test_api:
   stage: test
   script:
-    - npm test
+    - npm run test
 
 deploy_staging:
   image: ruby:latest
