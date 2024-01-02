@@ -22,6 +22,7 @@
     "compile:all": "npm-run-all compile:models compile:seed compile:authenticate compile:app compile:db copy:all",
     "start": "nodemon --exec babel-node index.js",
     "start:prod": "cross-env SEED_DB=true MONGO_DB=mongodb://127.0.0.1:27017/test NODE_ENV=test node build/index.js",
+    "postinstall": "rimraf ./build && npm run compile:all",
     "test": "cross-env NODE_ENV=test SEED_DB=true mocha"
   },
   "author": "Diarmuid O Connor",
