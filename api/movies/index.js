@@ -237,15 +237,14 @@ router.get('/tmdb/genres', asyncHandler(async (req, res) => {
  */
 router.get('/tmdb/:id', asyncHandler(async (req, res) => {
     const id = parseInt(req.params.id);
-    if (!Regex.test(id)) {
-        res.status(404).json({ message: 'The resource you requested could not be found.', status_code: 404 });
-    }
-    else {
-        const movie = await getMovie(id);
+    const movie = await movieModel.findByMovieDBId(id);
+    if (movie) {
         res.status(200).json(movie);
+    } else {
+        res.status(404).json({message: 'The resource you requested could not be found.', status_code: 404});
     }
-    
 }));
+
 
 /**,
  * @swagger

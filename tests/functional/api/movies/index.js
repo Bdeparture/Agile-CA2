@@ -51,7 +51,7 @@ describe("Movies endpoint", () => {
     });
   });
 
-  describe("GET /api/movies/:id", () => {
+  describe("GET /api/movies/tmdb/:id", () => {
     describe("when the id is valid", () => {
       it("should return the matching movie", () => {
         return request(api)
