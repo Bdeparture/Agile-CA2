@@ -215,6 +215,29 @@ describe("Movies endpoint", () => {
     });
   })
 
+  describe("GET /api/movies/tmdb/:id/movie_credits", () => {
+    describe("when the id is valid number", () => {
+      it("should return an object containing the movie_credits and status 200", () => {
+        return request(api)
+          .get(`/api/movies/tmdb/${movies[0].id}/movie_credits`)
+          .expect("Content-Type", /json/)
+          .expect(200)
+          .then((res) => {
+            expect(res.body).to.have.property("id", movies[0].id);
+          });
+      });
+    });
+    describe("when the id is not number", () => {
+      it("should return a status 404 and the corresponding message", () => {
+        return request(api)
+          .get(`/api/movies/tmdb/qwe/movie_credits`)
+          .expect("Content-Type", /json/)
+          .expect(404)
+          .expect({ message: 'The resource you requested could not be found.', status_code: 404 });
+      });
+    });
+  })
+
   describe("GET /api/movies/:id/reviews", () => {
     describe("when the id is valid number", () => {
       it("should return a list of the reviews in tmdb and status 200", () => {
