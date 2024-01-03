@@ -137,22 +137,18 @@ database connected to movies on ac-tzaru1y-shard-00-02.ddtbgzs.mongodb.net
   34 passing (10s)
 ~~~
 
-[ Markdown Tip: By wrapping the test results in fences (~~~), GitHub will display it in a 'box' and preserve any formatting.]
+## Deployments
 
-NOTE: Your test code should only contain the test cases you implemented. Your assignment submission  must remove the test cases (it blocks) developed in the labs.
-
-## Deployments.
-
-Specify the URLs of your deployments, both staging and production, e.g.
-
-https://movies-api-staging-doc-9200283e0b04.herokuapp.com/api/movies
-
-[ I do NOT need the URL of the app on your Heroku dashboard as this is private, e.g.
-
-https://dashboard.heroku.com/apps/movies-api-staging-doc ]
+https://movies-api-staging-css-1479054020eb.herokuapp.com
+you can add the api in the behind to look more information like
+[this](https://movies-api-staging-css-1479054020eb.herokuapp.com/api/people/tmdb/peopleList/1)
 
 ## Independent Learning (if relevant)
 
-Sspecify the URL of the Coveralls webpage that contains your tests' code coverage metrics.
+[![Coverage Status](https://coveralls.io/repos/gitlab/Bdeparture/agile-ca2-cicd/badge.svg)](https://coveralls.io/gitlab/Bdeparture/agile-ca2-cicd)
 
-State any other independent learning you achieved while completing this assignment.
+## Other related links
+
+gitlab: [Sisi chen / Agile-CA2-cicd · GitLab](https://gitlab.com/Bdeparture/agile-ca2-cicd)
+github: [Bdeparture/Agile-CA2 (github.com)](https://github.com/Bdeparture/Agile-CA2)
+heroku: [movies-api-staging-css | Heroku](https://dashboard.heroku.com/apps/movies-api-staging-css)
