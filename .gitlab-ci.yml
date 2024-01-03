@@ -29,6 +29,7 @@ install_dependencies:
   stage: install
   script:
     - npm  ci
+    - npm install --save-dev coveralls
 
 Build_api:
   stage: build
@@ -39,8 +40,12 @@ Build_api:
 
 test_api:
   stage: test
+  before_script:
+    - npm install -g grunt-cli
   script: 
-    - npm run test
+    - npm run test:coverage
+    - grunt coveralls
+    
 
 deploy_staging:
   image: ruby:latest
@@ -55,13 +60,5 @@ deploy_staging:
     - dpl --provider=heroku --app=$HEROKU_APP_NAME_STAGING --api-key=$HEROKU_API_KEY
     - echo "Deployed to staging server"
 
-coverage:
-  script:
-    - npm install
-    - npm run coverage
-  only:
-    - develop
 
-after_script:
-  - nyc report --reporter=text-lcov > coverage.lcov
-  - coveralls < coverage.lcov
+

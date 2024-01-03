@@ -24,7 +24,8 @@
     "start": "nodemon --exec babel-node index.js",
     "start:prod": "cross-env SEED_DB=true MONGO_DB=mongodb://127.0.0.1:27017/test NODE_ENV=test node build/index.js",
     "postinstall": "rimraf ./build && npm run compile:all",
-    "test": "cross-env NODE_ENV=test SEED_DB=false mocha"
+    "test": "cross-env NODE_ENV=test SEED_DB=false mocha",
+    "test:coverage": "nyc --reporter=lcov --reporter=text-lcov cross-env NODE_ENV=test SEED_DB=false mocha"
   },
   "author": "Diarmuid O Connor",
   "license": "ISC",
@@ -39,6 +40,7 @@
     "chai": "^4.0.2",
     "coveralls": "^3.1.1",
     "cross-env": "^6.0.3",
+    "grunt-coveralls": "^2.0.0",
     "istanbul": "^0.4.5",
     "mocha": "^8.1.3",
     "ncp": "2.0.0",
